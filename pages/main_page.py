@@ -1,61 +1,33 @@
-﻿from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as expected
-from selenium.webdriver.support.ui import WebDriverWait
-
+from data import BASE_URL
 from locators import MainPageLocators
+from pages.base_page import BasePage
 
 
-class MainPage:
-    def __init__(self, driver):
-        self.driver = driver
-        self.wait = WebDriverWait(driver, 10)
-
-    def open(self, base_url):
-        self.driver.get(base_url)
-        self.wait.until(
-            expected.element_to_be_clickable(
-                MainPageLocators.CONSTRUCTOR_LINK
-            )
-        )
+class MainPage(BasePage):
+    def open(self):
+        super().open(BASE_URL)
+        self.get_element(MainPageLocators.CONSTRUCTOR_LINK)
 
     def click_constructor(self):
-        self.wait.until(
-            expected.element_to_be_clickable(
-                MainPageLocators.CONSTRUCTOR_LINK
-            )
-        ).click()
+        self.click(MainPageLocators.CONSTRUCTOR_LINK)
 
     def click_order_feed(self):
-        self.wait.until(
-            expected.element_to_be_clickable(
-                MainPageLocators.ORDER_FEED_LINK
-            )
-        ).click()
+        self.click(MainPageLocators.ORDER_FEED_LINK)
 
     def click_ingredient(self, ingredient_name):
-        ingredient_locator = (
-            By.XPATH,
-            f"//p[normalize-space()='{ingredient_name}']"
-        )
-        self.wait.until(
-            expected.element_to_be_clickable(ingredient_locator)
-        ).click()
+        self.click(MainPageLocators.ingredient(ingredient_name))
 
     def ingredient_details_are_opened(self):
-        return self.wait.until(
-            expected.visibility_of_element_located(
-                MainPageLocators.INGREDIENT_DETAILS_TITLE
-            )
-        ).is_displayed()
+        return self.is_element_visible(MainPageLocators.INGREDIENT_DETAILS_TITLE)
 
     def close_ingredient_details(self):
-        self.wait.until(
-            expected.element_to_be_clickable(
-                MainPageLocators.MODAL_CLOSE_BUTTON
-            )
-        ).click()
+        self.click(MainPageLocators.MODAL_CLOSE_BUTTON)
 
     def ingredient_details_are_closed(self):
-        return not self.driver.find_elements(
-            *MainPageLocators.INGREDIENT_DETAILS_TITLE
-        )
+        return self.is_element_absent(MainPageLocators.INGREDIENT_DETAILS_TITLE)
+
+    def constructor_is_opened(self):
+        return self.get_current_url().rstrip('/') == BASE_URL.rstrip('/')
+
+    def order_feed_is_opened(self):
+        return self.get_current_url().rstrip('/').endswith('/feed')

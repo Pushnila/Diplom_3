@@ -1,14 +1,15 @@
-﻿import allure
+import allure
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 
+from data import TEST_INGREDIENT_NAME
 from helpers import generate_user_data
 from pages.auth_page import AuthPage
-
-
-BASE_URL = 'https://stellarburgers.education-services.ru/'
+from pages.constructor_page import ConstructorPage
+from pages.feed_page import FeedPage
+from pages.main_page import MainPage
 
 
 def pytest_addoption(parser):
@@ -39,21 +40,31 @@ def driver(request):
 
 
 @pytest.fixture
-def base_url():
-    return BASE_URL
-
-
-@pytest.fixture
-def user_data():
-    return generate_user_data()
-
-
-@pytest.fixture
-def logged_in_user(driver, base_url, user_data):
+def logged_in_user(driver):
+    user_data = generate_user_data()
     auth_page = AuthPage(driver)
-    auth_page.register(base_url, user_data)
-    auth_page.login(base_url, user_data)
+    auth_page.register(user_data)
+    auth_page.login(user_data)
     return user_data
+
+
+@pytest.fixture
+def created_order(driver, logged_in_user):
+    feed_page = FeedPage(driver)
+    main_page = MainPage(driver)
+    constructor_page = ConstructorPage(driver)
+
+    feed_page.open()
+    order_data = {
+        'total_before': feed_page.get_total_completed_count(),
+        'today_before': feed_page.get_today_completed_count()
+    }
+
+    main_page.open()
+    constructor_page.add_bun_to_constructor(TEST_INGREDIENT_NAME)
+    order_data['number'] = constructor_page.create_order()
+
+    return order_data
 
 
 @pytest.hookimpl(hookwrapper=True)

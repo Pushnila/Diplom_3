@@ -1,54 +1,22 @@
-﻿from selenium.webdriver.support import expected_conditions as expected
-from selenium.webdriver.support.ui import WebDriverWait
-
+from data import BASE_URL
 from locators import AuthPageLocators
+from pages.base_page import BasePage
 
 
-class AuthPage:
-    def __init__(self, driver):
-        self.driver = driver
-        self.wait = WebDriverWait(driver, 10)
+class AuthPage(BasePage):
+    def register(self, user_data):
+        self.open(f'{BASE_URL}register')
+        self.get_element(AuthPageLocators.NAME_INPUT).send_keys(user_data['name'])
+        self.get_element(AuthPageLocators.EMAIL_INPUT).send_keys(user_data['email'])
+        self.get_element(AuthPageLocators.PASSWORD_INPUT).send_keys(user_data['password'])
+        self.click(AuthPageLocators.REGISTER_BUTTON)
+        self.wait.until(lambda driver: '/login' in self.get_current_url())
 
-    def register(self, base_url, user_data):
-        self.driver.get(f'{base_url}register')
-
+    def login(self, user_data):
+        self.open(f'{BASE_URL}login')
+        self.get_element(AuthPageLocators.EMAIL_INPUT).send_keys(user_data['email'])
+        self.get_element(AuthPageLocators.PASSWORD_INPUT).send_keys(user_data['password'])
+        self.click(AuthPageLocators.LOGIN_BUTTON)
         self.wait.until(
-            expected.visibility_of_element_located(
-                AuthPageLocators.NAME_INPUT
-            )
-        ).send_keys(user_data['name'])
-
-        self.driver.find_element(
-            *AuthPageLocators.EMAIL_INPUT
-        ).send_keys(user_data['email'])
-
-        self.driver.find_element(
-            *AuthPageLocators.PASSWORD_INPUT
-        ).send_keys(user_data['password'])
-
-        self.driver.find_element(
-            *AuthPageLocators.REGISTER_BUTTON
-        ).click()
-
-        self.wait.until(expected.url_contains('/login'))
-
-    def login(self, base_url, user_data):
-        self.driver.get(f'{base_url}login')
-
-        self.wait.until(
-            expected.visibility_of_element_located(
-                AuthPageLocators.EMAIL_INPUT
-            )
-        ).send_keys(user_data['email'])
-
-        self.driver.find_element(
-            *AuthPageLocators.PASSWORD_INPUT
-        ).send_keys(user_data['password'])
-
-        self.driver.find_element(
-            *AuthPageLocators.LOGIN_BUTTON
-        ).click()
-
-        self.wait.until(
-            lambda driver: driver.current_url.rstrip('/') == base_url.rstrip('/')
+            lambda driver: self.get_current_url().rstrip('/') == BASE_URL.rstrip('/')
         )

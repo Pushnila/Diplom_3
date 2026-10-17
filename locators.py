@@ -19,12 +19,47 @@ class MainPageLocators:
         "//*[normalize-space()='Детали ингредиента']/ancestor::*[self::section or self::div][1]//button"
     )
 
+    @staticmethod
+    def ingredient(ingredient_name):
+        return (
+            By.XPATH,
+            f"//p[normalize-space()='{ingredient_name}']"
+        )
+
+    @staticmethod
+    def ingredient_card(ingredient_name):
+        return (
+            By.XPATH,
+            f"//p[normalize-space()='{ingredient_name}']/ancestor::li[1]"
+        )
+
+    INGREDIENT_COUNTER = (
+        By.XPATH,
+        ".//*[contains(@class, 'counter__num')]"
+    )
+
 
 class OrderFeedLocators:
     IN_PROGRESS_TITLE = (
         By.XPATH,
         "//*[normalize-space()='В работе:']"
     )
+    TOTAL_COMPLETED_COUNTER = (
+        By.XPATH,
+        "//*[normalize-space()='Выполнено за все время:']/following-sibling::*[1]"
+    )
+    TODAY_COMPLETED_COUNTER = (
+        By.XPATH,
+        "//*[normalize-space()='Выполнено за сегодня:']/following-sibling::*[1]"
+    )
+
+    @staticmethod
+    def order_in_progress(order_number):
+        return (
+            By.XPATH,
+            "//*[normalize-space()='В работе:']"
+            f"/following-sibling::*[1]//*[contains(normalize-space(), '{order_number}')]"
+        )
 
 
 class ConstructorPageLocators:
